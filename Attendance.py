@@ -2,13 +2,15 @@ import cv2
 import pandas as pd
 import face_recognition
 import os
-from datetime import datetime
 import csv
+from csv import reader
+from datetime import datetime
 
 path = 'trainImages'
 images = []
 studentNames = []
 studentList = os.listdir(path)
+
 
 def encode(images):
     encodeList = []
@@ -18,21 +20,34 @@ def encode(images):
         encodeList.append(encodeimg)
     return encodeList
 
+
 def markAttendance(studentName, present):
-    with open('Attendance.csv', 'w') as f:
-        writer = csv.writer(f)
-        row = ["Name","Present","Time"]
-        writer.writerow(row)
-    with open('Attendance.csv', 'r+') as f:
-        dataList = f.readlines()
-        nameList = []
-        for line in dataList:
-            entry = line.split(',')
-            nameList.append(entry[0])
-        if studentName not in nameList:
-            now = datetime.now()
-            dtString = now.strftime("%H:%M:%S")
-            f.writelines(f'\n{studentName},{present},{dtString}')
+    with open('Attendance.csv', 'a', newline='') as response:
+        writer = csv.writer(response)
+
+        with open('Attendance.csv', 'r') as read_obj:
+            one_char = read_obj.read(1)
+
+            if one_char:
+                df = pd.read_csv('Attendance.csv')
+
+                if studentName not in list(df['Name']):
+                    data = ["A" for _ in range(len(df.iloc[0]))]
+                    data[0] = studentName
+                    df.loc[len(df['Name']) + 1] = data
+
+                if f'{datetime.now().strftime("%d/%m/%Y")}' not in next(reader(read_obj)):
+                    df[f'{datetime.now().strftime("%d/%m/%Y")}'] = [None for _ in range(len(df['Name']))]
+            else:
+                df = pd.read_csv('Attendance.csv')
+                writer.writerows([
+                    ["Name", f'{datetime.now().strftime("%d/%m/%Y")}'],
+                    [studentName, present]]
+                )
+
+    df.loc[df['Name'] == studentName, [f'{datetime.now().strftime("%d/%m/%Y")}']] = present
+    df.to_csv('Attendance.csv', index = False)
+
 
 for student in studentList:
     curr_student = cv2.imread(f'{path}/{student}')
