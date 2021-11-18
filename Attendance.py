@@ -1,6 +1,6 @@
 import cv2
 import pandas as pd
-import face_recognition
+#import face_recognition
 import os
 import csv
 from csv import reader
@@ -39,45 +39,45 @@ def markAttendance(studentName, present):
                 if f'{datetime.now().strftime("%d/%m/%Y")}' not in next(reader(read_obj)):
                     df[f'{datetime.now().strftime("%d/%m/%Y")}'] = [None for _ in range(len(df['Name']))]
             else:
-                df = pd.read_csv('Attendance.csv')
                 writer.writerows([
                     ["Name", f'{datetime.now().strftime("%d/%m/%Y")}'],
                     [studentName, present]]
                 )
+                df = pd.DataFrame({"Name": [studentName], f'{datetime.now().strftime("%d/%m/%Y")}': [present]})
 
     df.loc[df['Name'] == studentName, [f'{datetime.now().strftime("%d/%m/%Y")}']] = present
     df.to_csv('Attendance.csv', index = False)
 
 
-for student in studentList:
-    curr_student = cv2.imread(f'{path}/{student}')
-    images.append(curr_student)
-    studentNames.append(os.path.splitext(student)[0])
+# for student in studentList:
+#     curr_student = cv2.imread(f'{path}/{student}')
+#     images.append(curr_student)
+#     studentNames.append(os.path.splitext(student)[0])
 
-studentsEncodeList = encode(images)
+# studentsEncodeList = encode(images)
 
-unknown_faces = face_recognition.load_image_file('testImages/testImg.jpeg')
-unknown_faces = cv2.cvtColor(unknown_faces, cv2.COLOR_BGR2RGB)
+# unknown_faces = face_recognition.load_image_file('testImages/testImg.jpeg')
+# unknown_faces = cv2.cvtColor(unknown_faces, cv2.COLOR_BGR2RGB)
 
-unknown_loc = face_recognition.face_locations(unknown_faces)
-unknown_encode = face_recognition.face_encodings(unknown_faces)
+# unknown_loc = face_recognition.face_locations(unknown_faces)
+# unknown_encode = face_recognition.face_encodings(unknown_faces)
 
-attendance_dict = {}
-present_names = {}
+# attendance_dict = {}
+# present_names = {}
 
-for i in range(0, len(studentsEncodeList)):
-    present = False
-    for j in range(0, len(unknown_loc)):
-        face_match = face_recognition.compare_faces([unknown_encode[j]], studentsEncodeList[i], tolerance=0.54)
-        if face_match[0]:
-            # attendance_dict[studentNames[i]] = "P"
-            markAttendance(studentNames[i], "P")
-            present_names[i] = unknown_loc[j]
-            present = True
-            break
-    if not present:
-        # attendance_dict[studentNames[i]] = "A"
-        markAttendance(studentNames[i], "A")
+# for i in range(0, len(studentsEncodeList)):
+#     present = False
+#     for j in range(0, len(unknown_loc)):
+#         face_match = face_recognition.compare_faces([unknown_encode[j]], studentsEncodeList[i], tolerance=0.54)
+#         if face_match[0]:
+#             # attendance_dict[studentNames[i]] = "P"
+#             markAttendance(studentNames[i], "P")
+#             present_names[i] = unknown_loc[j]
+#             present = True
+#             break
+#     if not present:
+#         # attendance_dict[studentNames[i]] = "A"
+#         markAttendance(studentNames[i], "A")
 
 # for i in present_names:
 #     cv2.rectangle(unknown_faces, (present_names[i][0], present_names[i][1]), (present_names[i][2], present_names[i][3]), (255, 0, 255), 2)
@@ -91,3 +91,5 @@ for i in range(0, len(studentsEncodeList)):
 # cv2.rectangle(unknown_faces[0], (unknown_loc[3], unknown_loc[0]), (unknown_loc[1], unknown_loc[2]), (255, 0, 255), 2)
 # cv2.imshow("Unknown", unknown_faces)
 # cv2.waitKey(0)
+
+markAttendance("Avnish", "P")
