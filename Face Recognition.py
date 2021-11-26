@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 import face_recognition
 
 imgDivtri = face_recognition.load_image_file('testImages/testImg4.jpeg')

@@ -32,7 +32,7 @@ def markAttendance(studentName, present):
             df = pd.read_csv('Attendance.csv')
 
             if studentName not in list(df['Name']):
-                data = ["A" for _ in range(len(df.iloc[0]))]
+                data = ["NA" for _ in range(len(df.iloc[0]))]
                 data[0] = studentName
                 df.loc[len(df['Name']) + 1] = data
 
@@ -49,17 +49,22 @@ def markAttendance(studentName, present):
     df.loc[df['Name'] == studentName, [f'{datetime.now().strftime("%d/%m/%Y")}']] = present
     df.to_csv('Attendance.csv', index = False)
 
+
 def captureImage():
     while True:
         url='http://192.168.0.102:8080/shot.jpg'
         cap = cv2.VideoCapture(url)
+
         if cap.isOpened():
             ret, frame = cap.read()
+
             if ret:
                 cv2.imwrite("testImages/testMain.png", frame)
+        
         cap.release()
         time.sleep(8)
         break
+
 
 def main():
     # captureImage()
@@ -92,5 +97,6 @@ def main():
 
         if not present:
             markAttendance(studentNames[i], "A")
+
 
 main()
