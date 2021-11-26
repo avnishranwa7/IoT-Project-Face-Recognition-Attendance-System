@@ -70,7 +70,7 @@ def main():
 
     studentsEncodeList = encode(images)
 
-    unknown_faces = face_recognition.load_image_file('testImages/testImg6.jpeg')
+    unknown_faces = face_recognition.load_image_file('testImages/testImg7.jpeg')
     unknown_faces = cv2.cvtColor(unknown_faces, cv2.COLOR_BGR2RGB)
 
     unknown_loc = face_recognition.face_locations(unknown_faces)
