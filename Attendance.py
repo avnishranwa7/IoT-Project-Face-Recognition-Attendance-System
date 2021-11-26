@@ -4,6 +4,7 @@ import face_recognition
 import os
 import csv
 from datetime import datetime
+import time
 
 path = 'trainImages'
 images = []
@@ -48,35 +49,48 @@ def markAttendance(studentName, present):
     df.loc[df['Name'] == studentName, [f'{datetime.now().strftime("%d/%m/%Y")}']] = present
     df.to_csv('Attendance.csv', index = False)
 
+def captureImage():
+    while True:
+        url='http://192.168.0.102:8080/shot.jpg'
+        cap = cv2.VideoCapture(url)
+        if cap.isOpened():
+            ret, frame = cap.read()
+            if ret:
+                cv2.imwrite("testImages/testMain.png", frame)
+        cap.release()
+        time.sleep(8)
+        break
 
-for student in studentList:
-    curr_student = cv2.imread(f'{path}/{student}')
-    images.append(curr_student)
-    studentNames.append(os.path.splitext(student)[0])
+def main():
+    # captureImage()
+    for student in studentList:
+        curr_student = cv2.imread(f'{path}/{student}')
+        images.append(curr_student)
+        studentNames.append(os.path.splitext(student)[0])
 
-studentsEncodeList = encode(images)
+    studentsEncodeList = encode(images)
 
-unknown_faces = face_recognition.load_image_file('testImages/testImg.jpeg')
-unknown_faces = cv2.cvtColor(unknown_faces, cv2.COLOR_BGR2RGB)
+    unknown_faces = face_recognition.load_image_file('testImages/testImg6.jpeg')
+    unknown_faces = cv2.cvtColor(unknown_faces, cv2.COLOR_BGR2RGB)
 
-unknown_loc = face_recognition.face_locations(unknown_faces)
-unknown_encode = face_recognition.face_encodings(unknown_faces)
+    unknown_loc = face_recognition.face_locations(unknown_faces)
+    unknown_encode = face_recognition.face_encodings(unknown_faces)
 
-attendance_dict = {}
-present_names = {}
+    present_names = {}
 
-for i in range(0, len(studentsEncodeList)):
-    present = False
+    for i in range(0, len(studentsEncodeList)):
+        present = False
 
-    for j in range(0, len(unknown_loc)):
-        face_match = face_recognition.compare_faces([unknown_encode[j]], studentsEncodeList[i], tolerance=0.54)
+        for j in range(0, len(unknown_loc)):
+            face_match = face_recognition.compare_faces([unknown_encode[j]], studentsEncodeList[i], tolerance=0.48)
 
-        if face_match[0]:
-            markAttendance(studentNames[i], "P")
-            present_names[i] = unknown_loc[j]
-            present = True
-            break
+            if face_match[0]:
+                markAttendance(studentNames[i], "P")
+                present_names[i] = unknown_loc[j]
+                present = True
+                break
 
-    if not present:
-        markAttendance(studentNames[i], "A")
+        if not present:
+            markAttendance(studentNames[i], "A")
 
+main()
